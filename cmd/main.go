@@ -17,7 +17,7 @@ func main() {
 		slog.Error("Unable to read conf", "error", err.Error())
 		return
 	}
-	// slog.SetLogLoggerLevel(slog.LevelDebug)
+	slog.SetLogLoggerLevel(slog.LevelDebug)
 	slog.Debug("main", "conf", conf)
 	watcher, err := prepareWatcher()
 	if err != nil {
@@ -45,9 +45,7 @@ func main() {
 				slog.Debug("watcher", "event", event)
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					slog.Info("File created detected", "filename", event.Name)
-					// making sure we don't move a partial file
-					slog.Info("Waiting 5 seconds before moving")
-					time.Sleep(5 * time.Second)
+					blockUntilUnchanging(event.Name)
 					base := filepath.Base(event.Name)
 					dir := filepath.Dir(event.Name)
 					destination := path.Join(destinationMap[dir], base)
@@ -113,6 +111,12 @@ func prepareWatcher() (*fsnotify.Watcher, error) {
 
 
 func mv(from string, to string) error {
+	err := os.Rename(from, to)
+	if err == nil {
+		return nil
+	} else {
+		slog.Warn("Unable to move file by renaming, possibly different drives, will copy and remove instead", "error", err.Error())
+	}
 	src, err := os.Open(from)
 	if err != nil {
 		return err
@@ -135,4 +139,29 @@ func mv(from string, to string) error {
 	}
 
 	return nil
+}
+
+func blockUntilUnchanging(file string) {
+	var size = fileSize(file)
+
+	for {
+		time.Sleep(1 * time.Second)
+		var newSize = fileSize(file)
+		if newSize == size || newSize == 0 {
+			return
+		} else {
+			slog.Debug("file has changed, waiting 1 more second", "file", file)
+			size = newSize
+		}
+	}
+
+}
+
+func fileSize(path string) int64 {
+	stat, err := os.Stat(path)
+	if err != nil {
+		slog.Error("Error while checking size", "error", err.Error())
+		return 0
+	}
+	return stat.Size()
 }
