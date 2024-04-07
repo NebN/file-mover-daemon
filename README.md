@@ -9,7 +9,12 @@ folders:
     destination: /destination/folder/two
 ```
 
-And run 
+And run (from releases)
+```
+./file-mover-daemon
+```
+
+Or compile and run
 ```
 go run cmd/main.go
 ```
