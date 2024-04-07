@@ -1,0 +1,5 @@
+folders:
+  - source: /home/metube/downloads/music_videos
+    destination: /entertainment/music_videos
+  - source: /home/metube/downloads/music
+    destination: /entertainment/music
