@@ -12,15 +12,19 @@ import (
 )
 
 func main() {
-	conf, _ := readConf()
+	conf, err := readConf()
+	if err != nil {
+		slog.Error("Unable to read conf", "error", err.Error())
+		return
+	}
 	// slog.SetLogLoggerLevel(slog.LevelDebug)
 	slog.Debug("main", "conf", conf)
 	watcher, err := prepareWatcher()
 	if err != nil {
-		slog.Error("error", err.Error())
+		slog.Error("Unable to spawn watcher", "error", err.Error())
+		return
 	}
 	defer watcher.Close()
-	slog.Info("main", "watcher", watcher)
 
 	var destinationMap = map[string]string {}
 
@@ -41,6 +45,7 @@ func main() {
 				slog.Debug("watcher", "event", event)
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					slog.Info("File created detected", "filename", event.Name)
+					// making sure we don't move a partial file
 					slog.Info("Waiting 5 seconds before moving")
 					time.Sleep(5 * time.Second)
 					base := filepath.Base(event.Name)
@@ -58,7 +63,7 @@ func main() {
 					// channel closed
 					return
 				}
-				slog.Error("error", err.Error())
+				slog.Error("watcher", "error", err.Error())
 			}
 		}
 	}()
@@ -77,8 +82,15 @@ type Conf struct {
 }
 
 func readConf() (*Conf, error) {
+				execPath, err := os.Executable()
+				if err != nil {
+						return nil, err
+				}
+
+				execDir := filepath.Dir(execPath)
+				confPath := filepath.Join(execDir, "conf", "conf.yml")
 				conf := Conf{}
-				content, err := os.ReadFile("conf/conf.yml")
+				content, err := os.ReadFile(confPath)
 				if err != nil {
 								return nil, err
 				}
