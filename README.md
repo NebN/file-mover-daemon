@@ -17,3 +17,20 @@ Compile and run
 make build
 ./file-mover-daemon
 ```
+
+#### Example Systemd unit file
+```
+[Unit]
+Description=Go File Watcher Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/path/to/file-mover-daemon/file-mover-daemon
+Restart=on-failure
+User=youruser
+Group=yourgroup
+
+[Install]
+WantedBy=multi-user.target
+```
