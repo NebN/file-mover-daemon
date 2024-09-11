@@ -1,5 +1,6 @@
 folders:
-  - source: /home/metube/downloads/music_videos
-    destination: /entertainment/music_videos
-  - source: /home/metube/downloads/music
-    destination: /entertainment/music
+  - source: /actual/unprocessed
+    destination: /actual/processed
+    is_share: true
+    command: node /home/actual/api/main.js
+
