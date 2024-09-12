@@ -37,6 +37,6 @@ jobs:
     - name: Upload binary artifact
       uses: actions/upload-artifact@v3
       with:
-        name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ maxtrix.go-version }}
-        path: ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ maxtrix.go-version }}/file-mover-daemon
+        name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.go-version }}
+        path: ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ matrix.go-version }}/file-mover-daemon
 
