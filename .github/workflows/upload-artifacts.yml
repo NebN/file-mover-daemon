@@ -32,7 +32,7 @@ jobs:
     - name: Build
       run: |
           mkdir -p ./dist/${{ matrix.goos }}_${{ matrix.goarch }}
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ maxtrix.go-version }}/myapp
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ matrix.go-version }}/myapp
 
     - name: Upload binary artifact
       uses: actions/upload-artifact@v3
