@@ -31,8 +31,8 @@ jobs:
 
     - name: Build
       run: |
-          mkdir -p ./dist/${{ matrix.goos }}_${{ matrix.goarch }}
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ matrix.go-version }}/myapp
+          mkdir -p ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ matrix.go-version }}
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ matrix.go-version }}/file-mover-daemon
 
     - name: Upload binary artifact
       uses: actions/upload-artifact@v3
