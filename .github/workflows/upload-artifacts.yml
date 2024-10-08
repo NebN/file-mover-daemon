@@ -39,6 +39,8 @@ jobs:
     - name: Package the build
       run: |
         zip -r ./dist/file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}
+        touch ./dist/conf.yml
+        zip -r ./dist/file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip ./dist/conf.yml
 
     - name: Upload Release Artifacts
       uses: actions/upload-release-asset@v1
