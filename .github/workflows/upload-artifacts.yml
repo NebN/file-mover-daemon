@@ -5,7 +5,7 @@ name: Go
 
 on:
   release:
-    type: ['published']
+    types: [released]
 
 permissions:
   contents: write  # Ensures the workflow has the correct write permissions
@@ -18,7 +18,7 @@ jobs:
   setup:
     runs-on: self-hosted
     steps:
-    
+
     - uses: actions/checkout@v4
 
     - name: Set up Go
