@@ -5,7 +5,10 @@ name: Go
 
 on:
   release:
-    type: ['published', 'released']
+    type: ['published']
+
+permissions:
+  contents: write  # Ensures the workflow has the correct write permissions
 
 jobs:
 
@@ -35,6 +38,8 @@ jobs:
     - name: Upload Release Artifacts
       if: github.event_name == 'release'
       uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GHCR_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
         asset_path: ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ matrix.go-version }}/file-mover-daemon
