@@ -18,6 +18,7 @@ jobs:
   setup:
     runs-on: self-hosted
     steps:
+    
     - uses: actions/checkout@v4
 
     - name: Set up Go
@@ -33,6 +34,8 @@ jobs:
       matrix:
         goos: [linux, windows, freebsd]
         goarch: [amd64, arm64]
+    
+    steps:
 
     - name: Test
       run: go test -v ./...
