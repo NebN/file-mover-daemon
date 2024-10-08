@@ -4,10 +4,8 @@
 name: Go
 
 on:
-  push:
-    branches: [ "workflow-test" ]
-  pull_request:
-    branches: [ "workflow-test" ]
+  release:
+    type: ['published', 'released']
 
 jobs:
 
@@ -39,4 +37,22 @@ jobs:
       with:
         name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.go-version }}
         path: ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ matrix.go-version }}/file-mover-daemon
+
+    release:
+      if: github.event_name == 'release'
+      needs: build
+      runs-on: self-hosted
+      steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.go-version }}
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ matrix.go-version }}/file-mover-daemon
+          asset_name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.go-version }}
+          asset_content_type: application/octet-stream
 
