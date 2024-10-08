@@ -38,7 +38,7 @@ jobs:
 
     - name: Install zip (Linux)
       if: matrix.goos != 'windows'
-      run: sudo apt-get install -y zip
+      run: apt-get install -y zip
 
     # Package the folder (zip for Windows, tar.gz for others)
     - name: Package the build (Windows)
