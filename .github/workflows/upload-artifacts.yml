@@ -15,8 +15,13 @@ env:
 
 jobs:
 
-  setup:
+  build:
     runs-on: self-hosted
+    strategy:
+      matrix:
+        goos: [linux, windows, freebsd]
+        goarch: [amd64, arm64]
+
     steps:
     - uses: actions/checkout@v4
 
@@ -25,22 +30,13 @@ jobs:
       with:
         go-version: ${{ env.GO_VERSION }}
 
-  build:
-    needs: setup
-    runs-on: self-hosted
-    strategy:
-      matrix:
-        goos: [linux, windows, freebsd]
-        goarch: [amd64, arm64]
-
-    steps:
     - name: Test
       run: go test -v ./...
 
     - name: Build
       run: |
-          mkdir -p ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ env.GO_VERSION }}
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ env.GO_VERSION }}/file-mover-daemon cmd/main.go
+          mkdir -p ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}/file-mover-daemon cmd/main.go
 
     - name: Upload Release Artifacts
       if: github.event_name == 'release'
@@ -49,6 +45,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ env.GO_VERSION }}/file-mover-daemon
-        asset_name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ env.GO_VERSION }}
+        asset_path: ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}/file-mover-daemon
+        asset_name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}
         asset_content_type: application/octet-stream
