@@ -15,13 +15,8 @@ env:
 
 jobs:
 
-  build:
+  setup:
     runs-on: self-hosted
-    strategy:
-      matrix:
-        goos: [linux, windows, freebsd]
-        goarch: [amd64, arm64]
-
     steps:
     - uses: actions/checkout@v4
 
@@ -29,6 +24,15 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: ${{ env.GO_VERSION }}
+
+
+  build:
+    needs: setup
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        goos: [linux, windows, freebsd]
+        goarch: [amd64, arm64]
 
     - name: Test
       run: go test -v ./...
