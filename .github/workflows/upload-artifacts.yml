@@ -52,7 +52,6 @@ jobs:
       with:
         upload_url: ${{ github.event.release.upload_url }}
         asset_path: |
-          ./dist/file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip
-          ./dist/file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.tar.gz
+              ${{ format('./dist/file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.{0}', (matrix.goos == 'windows') ? 'zip' : 'tar.gz') }}
         asset_name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}
         asset_content_type: application/octet-stream
