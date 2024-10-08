@@ -11,8 +11,12 @@ folders:
     is_share: true # a polling method has to be used on network shares
     command: echo # this will result in `echo /source/folder/two/example.txt` before the move
 ```
+Run the executable from [releases](https://github.com/NebN/file-mover-daemon/releases)
+```
+./file-mover-daemon
+```
 
-Compile and run
+Alternatively compile and run
 ```
 make build
 ./file-mover-daemon
