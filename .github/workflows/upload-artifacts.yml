@@ -1,22 +1,24 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go
+name: Build Release
 
 on:
   release:
     types: [released]
 
 permissions:
-  contents: write  # Ensures the workflow has the correct write permissions
+  contents: write
 
 env:
   GO_VERSION: '1.22'
 
 jobs:
 
-  setup:
+  build:
     runs-on: self-hosted
+    strategy:
+      matrix:
+        goos: [linux, windows, freebsd]
+        goarch: [amd64, arm64]
+
     steps:
 
     - uses: actions/checkout@v4
@@ -25,17 +27,6 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: ${{ env.GO_VERSION }}
-
-
-  build:
-    needs: setup
-    runs-on: self-hosted
-    strategy:
-      matrix:
-        goos: [linux, windows, freebsd]
-        goarch: [amd64, arm64]
-    
-    steps:
 
     - name: Test
       run: go test -v ./...
