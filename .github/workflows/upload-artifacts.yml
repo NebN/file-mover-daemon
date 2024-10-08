@@ -32,23 +32,8 @@ jobs:
           mkdir -p ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ matrix.go-version }}
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ matrix.go-version }}/file-mover-daemon cmd/main.go
 
-    - name: Upload binary artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.go-version }}
-        path: ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ matrix.go-version }}/file-mover-daemon
-
-  release:
-    if: github.event_name == 'release'
-    needs: build
-    runs-on: self-hosted
-    steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.go-version }}
-
-    - name: Upload Release Asset
+    - name: Upload Release Artifacts
+      if: github.event_name == 'release'
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ github.event.release.upload_url }}
