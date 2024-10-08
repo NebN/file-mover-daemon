@@ -36,6 +36,14 @@ jobs:
           mkdir -p ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}/file-mover-daemon cmd/main.go
 
+    - name: Package the build
+      run: |
+        if [[ "${{ matrix.goos }}" == "windows" ]]; then
+          zip -r ./dist/file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}
+        else
+          tar -czvf ./dist/file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.tar.gz -C ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }} .
+        fi
+
     - name: Upload Release Artifacts
       if: github.event_name == 'release'
       uses: actions/upload-release-asset@v1
@@ -43,6 +51,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}/file-mover-daemon
-        asset_name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}/file-mover-daemon
+        asset_path: |
+          ./dist/file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip
+          ./dist/file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.tar.gz
+        asset_name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}
         asset_content_type: application/octet-stream
