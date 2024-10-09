@@ -19,6 +19,9 @@ jobs:
         goos: [linux, windows, freebsd]
         goarch: [amd64, arm64]
 
+    env:
+      name: ${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}
+      
     steps:
 
     - uses: actions/checkout@v4
@@ -33,15 +36,15 @@ jobs:
 
     - name: Build
       run: |
-          mkdir -p ./${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}/conf
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}/file-mover-daemon cmd/main.go
+          mkdir -p ./$name/conf
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./$name/file-mover-daemon cmd/main.go
 
     - name: Package the build
       run: |
-        zip -r ./file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip ./${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}/file-mover-daemon
-        echo "# Edit me!" > ./conf/conf.yml
-        echo '# Example file @ https://github.com/NebN/file-mover-daemon' >> ./conf/conf.yml
-        zip -r ./file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip ./conf/conf.yml
+        zip -r ./file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip ./$name/file-mover-daemon
+        echo "# Edit me!" > ./$name/conf/conf.yml
+        echo '# Example file @ https://github.com/NebN/file-mover-daemon' >> ./$name/conf/conf.yml
+        zip -r ./file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip ./$name/conf/conf.yml
 
     - name: Upload Release Artifacts
       uses: actions/upload-release-asset@v1
