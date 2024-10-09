@@ -36,15 +36,15 @@ jobs:
 
     - name: Build
       run: |
-          mkdir -p ./$name/conf
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./$name/file-mover-daemon cmd/main.go
+          mkdir -p ./${{ env.name }}/conf
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./${{ env.name }}/file-mover-daemon cmd/main.go
 
     - name: Package the build
       run: |
-        zip -r ./file-mover-daemon-$name.zip ./$name/file-mover-daemon
-        echo "# Edit me!" > ./$name/conf/conf.yml
-        echo '# Example file @ https://github.com/NebN/file-mover-daemon' >> ./$name/conf/conf.yml
-        zip -r ./file-mover-daemon-$name.zip ./$name/conf/conf.yml
+        zip -r ./file-mover-daemon-${{ env.name }}.zip .${{ env.name }}/file-mover-daemon
+        echo "# Edit me!" > ./${{ env.name }}/conf/conf.yml
+        echo '# Example file @ https://github.com/NebN/file-mover-daemon' >> ./${{ env.name }}/conf/conf.yml
+        zip -r ./file-mover-daemon-${{ env.name }}.zip ./${{ env.name }}/conf/conf.yml
 
     - name: Upload Release Artifacts
       uses: actions/upload-release-asset@v1
@@ -52,6 +52,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./file-mover-daemon-$name.zip
-        asset_name: file-mover-daemon-$name.zip
+        asset_path: ./file-mover-daemon-${{ env.name }}.zip
+        asset_name: file-mover-daemon-${{ env.name }}.zip
         asset_content_type: application/zip
