@@ -3,16 +3,17 @@ package main
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
+	"os/exec"
 	"path"
-	"time"
+	"path/filepath"
 	"strings"
 	"syscall"
-	"os/exec"
-	"path/filepath"
-	"gopkg.in/yaml.v3"
+	"time"
+
 	"github.com/fsnotify/fsnotify"
-	"log/slog"
+	"gopkg.in/yaml.v3"
 )
 
 func main() {
@@ -30,40 +31,40 @@ func main() {
 	}
 	defer watcher.Close()
 
-	var actionMapLocal = map[string]Action {}
-	var actionMapShare = map[string]Action {}
+	var actionMapLocal = map[string]Action{}
+	var actionMapShare = map[string]Action{}
 
 	for _, folder := range conf.Folders {
-		if (folder.IsShare) {
+		if folder.IsShare {
 			slog.Debug("NOT adding folder to watcher", "folder", folder.Source, "destination", folder.Destination, "command", folder.Command)
 			// OS watcher does not work on shared network folders
-			continue;
+			continue
 		}
 		slog.Info("Adding folder to watcher", "folder", folder.Source, "destination", folder.Destination, "command", folder.Command)
 		watcher.Add(folder.Source)
 		actionMapLocal[path.Join(folder.Source)] = Action{
 			Destination: folder.Destination,
-			Command: folder.Command,
+			Command:     folder.Command,
 		}
 	}
 
 	for _, folder := range conf.Folders {
-		if (!folder.IsShare) {
+		if !folder.IsShare {
 			slog.Debug("NOT adding folder to polling group", "folder", folder.Source, "destination", folder.Destination, "command", folder.Command)
 			// OS watcher does not work on shared network folders
-			continue;
+			continue
 		}
 		slog.Info("Adding folder to polling group", "folder", folder.Source, "destination", folder.Destination, "command", folder.Command)
 		actionMapShare[path.Join(folder.Source)] = Action{
 			Destination: folder.Destination,
-			Command: folder.Command,
+			Command:     folder.Command,
 		}
 	}
 
 	go func() {
 		for {
 			select {
-			case event, ok := <- watcher.Events:
+			case event, ok := <-watcher.Events:
 				if !ok {
 					// channel closed
 					return
@@ -71,10 +72,10 @@ func main() {
 				slog.Debug("watcher", "event", event)
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					slog.Info("File created detected", "filename", event.Name)
-					
+
 					if err := performAction(event.Name, actionMapLocal); err != nil {
 						slog.Error("watcher move", "error", err.Error())
-					} 
+					}
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
@@ -92,44 +93,43 @@ func main() {
 			if err != nil {
 				slog.Error("Error reading directory", "folder", folder, "error", err.Error())
 			}
-		
+
 			for {
 				time.Sleep(5 * time.Second)
-		
+
 				currentFiles, err := ls(folder)
 				if err != nil {
 					slog.Error("Error reading directory", "folder", folder, "error", err.Error())
 					continue
 				}
-		
+
 				for path, info := range currentFiles {
 					if _, found := prevFiles[path]; !found {
 						fmt.Printf("New file detected: %s (Size: %d bytes)\n", path, info.Size())
 						performAction(path, actionMapShare)
-						
+
 					}
 				}
-		
+
 				prevFiles = currentFiles
 			}
-		
+
 		}()
 	}
 
 	select {}
 }
 
-
 type Folder struct {
-	Source string `yaml:"source"`
-	Destination string `yaml:"destination"`
-	IsShare bool`yaml:"is_share"`
-	Command *string `yaml:"command"`
+	Source      string  `yaml:"source"`
+	Destination string  `yaml:"destination"`
+	IsShare     bool    `yaml:"is_share"`
+	Command     *string `yaml:"command"`
 }
 
 type Action struct {
-	Destination string 
-	Command *string 
+	Destination string
+	Command     *string
 }
 
 type Conf struct {
@@ -156,7 +156,6 @@ func readConf() (*Conf, error) {
 	return &conf, nil
 }
 
-
 func prepareWatcher() (*fsnotify.Watcher, error) {
 
 	watcher, err := fsnotify.NewWatcher()
@@ -174,7 +173,7 @@ func performAction(file string, actionMap map[string]Action) error {
 
 	blockUntilUnchanging(file)
 
-	if (action.Command != nil) {
+	if action.Command != nil {
 		commandSections := strings.Fields(*action.Command)
 		commandSections = append(commandSections, file)
 		commandName := commandSections[0]
@@ -183,7 +182,7 @@ func performAction(file string, actionMap map[string]Action) error {
 		if err := command(commandName, commandArgs...); err != nil {
 			return err
 		}
-		
+
 	}
 
 	if err := mv(file, destination); err != nil {
@@ -206,7 +205,6 @@ func mv(from string, to string) error {
 		return err
 	}
 	defer src.Close()
-
 
 	dest, err := os.Create(to)
 	if err != nil {
@@ -251,7 +249,7 @@ func fileSize(path string) int64 {
 }
 
 func command(commandName string, commandArgs ...string) error {
-	cmd := exec.Command(commandName, commandArgs...)	
+	cmd := exec.Command(commandName, commandArgs...)
 	out, err := cmd.Output()
 
 	slog.Debug("Command", "output", out)
@@ -266,13 +264,12 @@ func command(commandName string, commandArgs ...string) error {
 		} else {
 			slog.Error("Could not run command", "error", err.Error())
 		}
-		
+
 		return err
 	}
 
 	return nil
 }
-
 
 func ls(dir string) (map[string]os.FileInfo, error) {
 	files := make(map[string]os.FileInfo)
