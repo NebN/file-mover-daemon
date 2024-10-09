@@ -87,7 +87,7 @@ func main() {
 		}
 	}()
 
-	for folder, _ := range actionMapShare {
+	for folder := range actionMapShare {
 		go func() {
 			prevFiles, err := ls(folder)
 			if err != nil {
