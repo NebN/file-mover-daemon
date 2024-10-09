@@ -41,7 +41,7 @@ jobs:
 
     - name: Package the build
       run: |
-        zip -r ./file-mover-daemon-${{ env.name }}.zip .${{ env.name }}/file-mover-daemon
+        zip -r ./file-mover-daemon-${{ env.name }}.zip ./${{ env.name }}/file-mover-daemon
         echo "# Edit me!" > ./${{ env.name }}/conf/conf.yml
         echo '# Example file @ https://github.com/NebN/file-mover-daemon' >> ./${{ env.name }}/conf/conf.yml
         zip -r ./file-mover-daemon-${{ env.name }}.zip ./${{ env.name }}/conf/conf.yml
