@@ -33,14 +33,15 @@ jobs:
 
     - name: Build
       run: |
-          mkdir -p ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}/file-mover-daemon cmd/main.go
+          mkdir -p ./${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}/conf
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}/file-mover-daemon cmd/main.go
 
     - name: Package the build
       run: |
-        zip -r ./dist/file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip ./dist/${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}/file-mover-daemon
-        echo "# Edit me!" > ./dist/conf.yml
-        zip -r ./dist/file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip ./dist/conf.yml
+        zip -r ./file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip ./${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}/file-mover-daemon
+        echo "# Edit me!" > ./conf/conf.yml
+        echo '# Example file @ https://github.com/NebN/file-mover-daemon' >> ./conf/conf.yml
+        zip -r ./file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip ./conf/conf.yml
 
     - name: Upload Release Artifacts
       uses: actions/upload-release-asset@v1
@@ -48,6 +49,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./dist/file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip
+        asset_path: ./file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip
         asset_name: file-mover-daemon-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.release.name }}.zip
         asset_content_type: application/zip
