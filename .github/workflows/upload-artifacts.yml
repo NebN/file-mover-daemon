@@ -19,10 +19,10 @@ jobs:
         goos: [linux, windows, freebsd]
         goarch: [amd64, arm64]
 
-    env:
-      name: ${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}
-
     steps:
+
+    - name: Set name variable
+      run: echo "name=${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}" >> $GITHUB_ENV
 
     - uses: actions/checkout@v4
 
