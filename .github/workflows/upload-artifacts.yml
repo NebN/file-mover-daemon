@@ -24,7 +24,8 @@ jobs:
     - name: Set name variable
       run: echo "name=${{ matrix.goos }}_${{ matrix.goarch }}_${{ github.event.release.name }}" >> $GITHUB_ENV
 
-    - uses: actions/checkout@v4
+    - name: Checkout branch
+      uses: actions/checkout@v4
 
     - name: Set up Go
       uses: actions/setup-go@v4
@@ -46,7 +47,7 @@ jobs:
         echo '# Example file @ https://github.com/NebN/file-mover-daemon' >> ./${{ env.name }}/conf/conf.yml
         zip -r ./file-mover-daemon-${{ env.name }}.zip ./${{ env.name }}/conf/conf.yml
 
-    - name: Upload Release Artifacts
+    - name: Upload release artifacts
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
